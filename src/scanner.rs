@@ -130,14 +130,16 @@ impl Scanner {
 
     // Skip the rest of the line when encountering `//`
     fn skip_to_end_of_line(&mut self) {
-        while let Some(c) = self.source.chars().nth(self.current) {
+        // Continue advancing until we find a newline or reach the end of the input
+        while !self.is_at_end() {
+            let c = self.advance();
             if c == '\n' {
-                break;
+                self.line += 1; // Increment line number
+                break; // Stop at the end of the line
             }
-            self.current += 1; // Advance to the next character
         }
     }
-
+    
     // Error reporting function for unexpected characters
     fn error(&mut self, unexpected_char: char) {
         eprintln!("[line {}] Error: Unexpected character: '{}'", self.line, unexpected_char);
