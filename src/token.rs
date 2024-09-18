@@ -13,6 +13,8 @@ pub enum TokenType {
     PLUS,          // +
     MINUS,         // -
     SEMICOLON,     // ;
+    EQUAL,         // =
+    EQUAL_EQUAL,   // ==
     // Add more as we expand the language spec
     
     // End of file

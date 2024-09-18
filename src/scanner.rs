@@ -43,6 +43,13 @@ impl Scanner {
             '+' => self.add_token(TokenType::PLUS),
             '-' => self.add_token(TokenType::MINUS),
             ';' => self.add_token(TokenType::SEMICOLON),
+            '=' => {
+                if self.match_next('=') {
+                    self.add_token(TokenType::EQUAL_EQUAL); // Handle ==
+                } else {
+                    self.add_token(TokenType::EQUAL); // Handle =
+                }
+            }
             '\n' => self.line += 1, // Handle line breaks
             // Add more token matching cases here
             _ => self.error(c),  // Handle unknown characters or errors
@@ -63,6 +70,20 @@ impl Scanner {
 
     fn is_at_end(&self) -> bool {
         self.current >= self.source.len()
+    }
+
+    // Check if the next character matches the expected character.
+    fn match_next(&mut self, expected: char) -> bool {
+        if self.is_at_end() {
+            return false;
+        }
+
+        if self.source.chars().nth(self.current).unwrap() != expected {
+            return false;
+        }
+
+        self.current += 1; // Consume the next character
+        true
     }
 
     // Error reporting function for unexpected characters
