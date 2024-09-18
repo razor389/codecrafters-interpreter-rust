@@ -1,4 +1,3 @@
-// main.rs
 mod scanner;
 mod token;
 
@@ -6,10 +5,15 @@ use std::env;
 use std::fs;
 use std::io::{self, Write};
 use std::process;
+use env_logger::Env;
 use scanner::Scanner;
 use token::TokenType;
+use env_logger;
 
 fn main() {
+    let env = Env::default().filter_or("RUST_LOG", "info");
+    env_logger::init_from_env(env);
+
     let args: Vec<String> = env::args().collect();
     if args.len() < 3 {
         writeln!(io::stderr(), "Usage: {} tokenize <filename>", args[0]).unwrap();
@@ -27,6 +31,8 @@ fn main() {
             });
 
             if !file_contents.is_empty() {
+                log::info!("Starting to scan tokens in file: {}", filename);
+                
                 let mut scanner = Scanner::new(file_contents);
                 scanner.scan_tokens();
 
@@ -54,8 +60,10 @@ fn main() {
                         TokenType::EOF => println!("EOF  null"),
                     }
                 }
+
                 // Check for lexical errors and exit with code 65 if any occurred
                 if scanner.has_error() {
+                    log::error!("Lexical error detected during scanning.");
                     process::exit(65);
                 } else {
                     process::exit(0); // No errors, exit with code 0
