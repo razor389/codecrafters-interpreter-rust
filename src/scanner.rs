@@ -124,11 +124,13 @@ impl Scanner {
 
     // Skip the rest of the line when encountering or `//`
     fn skip_to_end_of_line(&mut self) {
+        println!("Got here");
         while let Some(c) = self.source.chars().nth(self.current) {
+            println!("looping");
             if c == '\n' {
                 break;
             }
-            if self.current > self.source.len() {
+            if self.current >= self.source.len() {
                 break;
             }
             self.current += 1; // Advance to the next character
