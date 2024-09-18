@@ -46,6 +46,10 @@ fn main() {
                         TokenType::EQUAL_EQUAL => println!("EQUAL_EQUAL == null"),
                         TokenType::BANG => println!("BANG ! null"),
                         TokenType::BANG_EQUAL => println!("BANG_EQUAL != null"),
+                        TokenType::GREATER => println!("GREATER > null"),
+                        TokenType::GREATER_EQUAL => println!("GREATER_EQUAL >= null"),
+                        TokenType::LESS => println!("LESS < null"),
+                        TokenType::LESS_EQUAL => println!("LESS_EQUAL <= null"),
                         TokenType::EOF => println!("EOF  null"),
                     }
                 }

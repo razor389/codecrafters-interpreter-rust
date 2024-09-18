@@ -17,6 +17,10 @@ pub enum TokenType {
     EQUAL_EQUAL,   // ==
     BANG,          // !
     BANG_EQUAL,    // !=
+    LESS,          // <
+    LESS_EQUAL,    // <=
+    GREATER,       // >
+    GREATER_EQUAL, // >=
     // Add more as we expand the language spec
     
     // End of file

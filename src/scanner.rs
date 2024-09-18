@@ -57,6 +57,22 @@ impl Scanner {
                     self.add_token(TokenType::BANG);
                 }
             }
+            '<' =>{
+                if self.match_next('='){
+                    self.add_token(TokenType::LESS_EQUAL);
+                }
+                else{
+                    self.add_token(TokenType::LESS);
+                }
+            }
+            '>' =>{
+                if self.match_next('='){
+                    self.add_token(TokenType::GREATER_EQUAL);
+                }
+                else{
+                    self.add_token(TokenType::GREATER);
+                }
+            }
             '\n' => self.line += 1, // Handle line breaks
             // Add more token matching cases here
             _ => self.error(c),  // Handle unknown characters or errors
