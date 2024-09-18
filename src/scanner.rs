@@ -29,7 +29,7 @@ impl Scanner {
             self.start = self.current;
             self.scan_token();
         }
-        info!("Reached end of file. Adding EOF token.");
+        log::info!("Reached end of file. Adding EOF token.");
         self.tokens.push(Token::new(TokenType::EOF, String::new(), None));
     }
 
@@ -80,7 +80,7 @@ impl Scanner {
             '/' =>{
                 if self.match_next('/') {
                     self.skip_to_end_of_line();
-                    debug!("Skipped comment to end of line.");
+                    log::debug!("Skipped comment to end of line.");
                 }
                 else{
                     self.add_token(TokenType::SLASH);
@@ -88,7 +88,7 @@ impl Scanner {
             }
             '\n' => {
                 self.line += 1;
-                debug!("New line encountered. Line number now: {}", self.line);
+                log::debug!("New line encountered. Line number now: {}", self.line);
             }
             '\0' => (), // Do nothing for null character (end of file)
             _ => self.error(c),  // Handle unknown characters or errors
