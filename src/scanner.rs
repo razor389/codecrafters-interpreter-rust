@@ -12,7 +12,7 @@ pub struct Scanner {
 
 impl Scanner {
     pub fn new(source: String) -> Self {
-        info!("Initializing scanner with source of length: {}", source.len());
+        log::info!("Initializing scanner with source of length: {}", source.len());
         Scanner {
             source,
             tokens: Vec::new(),
@@ -25,7 +25,6 @@ impl Scanner {
 
     pub fn scan_tokens(&mut self) {
         while !self.is_at_end() {
-            debug!("scanning token");
             self.start = self.current;
             self.scan_token();
         }
@@ -35,7 +34,7 @@ impl Scanner {
 
     fn scan_token(&mut self) {
         let c = self.advance();
-        debug!("Scanning token at line {}, character: '{}'", self.line, c);
+        //debug!("Scanning token at line {}, character: '{}'", self.line, c);
         match c {
             '(' => self.add_token(TokenType::LEFT_PAREN),
             ')' => self.add_token(TokenType::RIGHT_PAREN),
@@ -132,7 +131,6 @@ impl Scanner {
     // Skip the rest of the line when encountering `//`
     fn skip_to_end_of_line(&mut self) {
         while let Some(c) = self.source.chars().nth(self.current) {
-            debug!("Looping here");
             if c == '\n' {
                 break;
             }
