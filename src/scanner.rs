@@ -128,6 +128,9 @@ impl Scanner {
             if c == '\n' {
                 break;
             }
+            if self.current > self.source.len() {
+                break;
+            }
             self.current += 1; // Advance to the next character
         }
     }
