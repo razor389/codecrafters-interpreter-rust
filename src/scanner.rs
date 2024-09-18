@@ -12,7 +12,7 @@ pub struct Scanner {
 
 impl Scanner {
     pub fn new(source: String) -> Self {
-        log::info!("Initializing scanner with source of length: {}", source.len());
+        info!("Initializing scanner with source of length: {}", source.len());
         Scanner {
             source,
             tokens: Vec::new(),
@@ -23,18 +23,19 @@ impl Scanner {
         }
     }
 
+    /// Main loop for scanning tokens.
     pub fn scan_tokens(&mut self) {
-        while !self.is_at_end() {
-            self.start = self.current;
-            self.scan_token();
-        }
-        log::info!("Reached end of file. Adding EOF token.");
+        // Continue scanning tokens until scan_token returns None
+        while self.scan_token().is_some() {}
+        info!("Reached end of file. Adding EOF token.");
         self.tokens.push(Token::new(TokenType::EOF, String::new(), None));
     }
 
-    fn scan_token(&mut self) {
-        let c = self.advance();
-        //debug!("Scanning token at line {}, character: '{}'", self.line, c);
+    /// Scans the next token, returning `Some(())` if a token was found, or `None` if end of file is reached.
+    fn scan_token(&mut self) -> Option<()> {
+        let c = self.advance()?;
+        debug!("Scanning token at line {}, character: '{}'", self.line, c);
+
         match c {
             '(' => self.add_token(TokenType::LEFT_PAREN),
             ')' => self.add_token(TokenType::RIGHT_PAREN),
@@ -78,8 +79,8 @@ impl Scanner {
             }
             '/' =>{
                 if self.match_next('/') {
-                    log::debug!("Skipping comment to end of line.");
-                    self.skip_to_end_of_line();
+                    self.skip_to_end_of_line(); // Skip comment to the end of the line
+                    debug!("Skipped comment to end of line.");
                 }
                 else{
                     self.add_token(TokenType::SLASH);
@@ -87,23 +88,21 @@ impl Scanner {
             }
             '\n' => {
                 self.line += 1;
-                log::debug!("New line encountered. Line number now: {}", self.line);
+                debug!("New line encountered. Line number now: {}", self.line);
             }
-            '\0' => (), // Do nothing for null character (end of file)
             _ => self.error(c),  // Handle unknown characters or errors
         }
+
+        Some(())
     }
 
-    /// Advances and returns the next character, or '\0' if at the end.
-    fn advance(&mut self) -> char {
-        if let Some(c) = self.source.chars().nth(self.current) {
-            self.current += 1;
-            c
-        } else {
-
-            debug!("hit null character");
-            '\0' // Null character to signify the end of the input
+    /// Advances and returns the next character, or `None` if at the end.
+    fn advance(&mut self) -> Option<char> {
+        let next_char = self.source.chars().nth(self.current);
+        if next_char.is_some() {
+            self.current += 1; // Move to the next character
         }
+        next_char // Return the character or None if at the end
     }
 
     fn add_token(&mut self, token_type: TokenType) {
@@ -133,15 +132,14 @@ impl Scanner {
     // Skip the rest of the line when encountering `//`
     fn skip_to_end_of_line(&mut self) {
         // Continue advancing until we find a newline or reach the end of the input
-        while !self.is_at_end() {
-            let c = self.advance();
+        while let Some(c) = self.advance() {
             if c == '\n' {
                 self.line += 1; // Increment line number
                 break; // Stop at the end of the line
             }
         }
     }
-    
+
     // Error reporting function for unexpected characters
     fn error(&mut self, unexpected_char: char) {
         eprintln!("[line {}] Error: Unexpected character: '{}'", self.line, unexpected_char);
