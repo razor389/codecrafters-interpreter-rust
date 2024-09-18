@@ -1,5 +1,5 @@
 use crate::token::{Token, TokenType};
-use log::{debug, info, error};  // Import log macros
+use log::{debug, info};  // Import log macros
 
 pub struct Scanner {
     source: String,
