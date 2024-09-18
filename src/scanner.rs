@@ -117,10 +117,14 @@ impl Scanner {
         true
     }
 
-    // Skip the rest of the line when encountering `\\`
+    // Skip the rest of the line when encountering or `//`
     fn skip_to_end_of_line(&mut self) {
-        while !self.is_at_end() && self.source.chars().nth(self.current).unwrap() != '\n' {
-            self.current += 1;
+        while !self.is_at_end() {
+            match self.source.chars().nth(self.current) {
+                Some('\n') => break, // Stop at the end of the line
+                Some(_) => self.current += 1, // Keep advancing
+                None => break, // End of the file, stop advancing
+            }
         }
     }
 
