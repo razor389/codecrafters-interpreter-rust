@@ -40,6 +40,7 @@ impl Scanner {
             ',' => self.add_token(TokenType::COMMA),
             '+' => self.add_token(TokenType::PLUS),
             '-' => self.add_token(TokenType::MINUS),
+            ';' => self.add_token(TokenType::SEMICOLON),
             '\n' => self.line += 1, // Handle line breaks
             // Add more token matching cases here
             _ => self.error(c),  // Handle unknown characters or errors
