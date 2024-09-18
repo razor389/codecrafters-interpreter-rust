@@ -31,6 +31,8 @@ impl Scanner {
         match c {
             '(' => self.add_token(TokenType::LEFT_PAREN),
             ')' => self.add_token(TokenType::RIGHT_PAREN),
+            '{' => self.add_token(TokenType::LEFT_BRACE),
+            '}' => self.add_token(TokenType::RIGHT_BRACE),
             // Add more token matching cases here
             _ => {} // Handle unknown characters or errors
         }
