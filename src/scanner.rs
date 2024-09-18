@@ -73,8 +73,8 @@ impl Scanner {
                     self.add_token(TokenType::GREATER);
                 }
             }
-            '\\' =>{
-                if self.match_next('\\'){
+            '/' =>{
+                if self.match_next('/'){
                     self.skip_to_end_of_line();
                 }
                 else{
