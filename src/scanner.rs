@@ -39,6 +39,7 @@ impl Scanner {
             '.' => self.add_token(TokenType::DOT),
             ',' => self.add_token(TokenType::COMMA),
             '+' => self.add_token(TokenType::PLUS),
+            '-' => self.add_token(TokenType::MINUS),
             '\n' => self.line += 1, // Handle line breaks
             // Add more token matching cases here
             _ => self.error(c),  // Handle unknown characters or errors
@@ -65,7 +66,7 @@ impl Scanner {
     fn error(&self, unexpected_char: char) {
         eprintln!("[line {}] Error: Unexpected character: '{}'", self.line, unexpected_char);
     }
-    
+
     pub fn get_tokens(&self) -> &Vec<Token> {
         &self.tokens
     }

@@ -39,6 +39,7 @@ fn main() {
                         TokenType::DOT => println!("DOT . null"),
                         TokenType::COMMA => println!("COMMA , null"),
                         TokenType::PLUS => println!("PLUS + null"),
+                        TokenType::MINUS => println!("MINUS - null"),
                         TokenType::EOF => println!("EOF  null"),
                     }
                 }

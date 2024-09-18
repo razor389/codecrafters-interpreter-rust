@@ -11,6 +11,7 @@ pub enum TokenType {
     DOT,           // .
     COMMA,         // ,
     PLUS,          // +
+    MINUS,         // -
     // Add more as we expand the language spec
     
     // End of file
