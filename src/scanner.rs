@@ -78,8 +78,8 @@ impl Scanner {
             }
             '/' =>{
                 if self.match_next('/') {
+                    log::debug!("Skipping comment to end of line.");
                     self.skip_to_end_of_line();
-                    log::debug!("Skipped comment to end of line.");
                 }
                 else{
                     self.add_token(TokenType::SLASH);
