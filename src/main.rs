@@ -5,6 +5,7 @@ mod token;
 use std::env;
 use std::fs;
 use std::io::{self, Write};
+use std::process;
 use scanner::Scanner;
 use token::TokenType;
 
@@ -43,6 +44,12 @@ fn main() {
                         TokenType::SEMICOLON => println!("SEMICOLON ; null"),
                         TokenType::EOF => println!("EOF  null"),
                     }
+                }
+                // Check for lexical errors and exit with code 65 if any occurred
+                if scanner.has_error() {
+                    process::exit(65);
+                } else {
+                    process::exit(0); // No errors, exit with code 0
                 }
             } else {
                 println!("EOF  null");

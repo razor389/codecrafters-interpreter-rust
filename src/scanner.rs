@@ -7,6 +7,7 @@ pub struct Scanner {
     start: usize,
     current: usize,
     line: usize, // Track the current line number
+    error_occurred: bool,
 }
 
 impl Scanner {
@@ -17,6 +18,7 @@ impl Scanner {
             start: 0,
             current: 0,
             line: 1, // Start at line 1
+            error_occurred: false,
         }
     }
 
@@ -64,8 +66,13 @@ impl Scanner {
     }
 
     // Error reporting function for unexpected characters
-    fn error(&self, unexpected_char: char) {
+    fn error(&mut self, unexpected_char: char) {
         eprintln!("[line {}] Error: Unexpected character: '{}'", self.line, unexpected_char);
+        self.error_occurred = true;
+    }
+
+    pub fn has_error(&self) -> bool {
+        self.error_occurred
     }
 
     pub fn get_tokens(&self) -> &Vec<Token> {
