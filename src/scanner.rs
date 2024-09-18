@@ -82,15 +82,20 @@ impl Scanner {
                 }
             }
             '\n' => self.line += 1, // Handle line breaks
+            '\0' => (), // Do nothing for null character (end of file)
             // Add more token matching cases here
             _ => self.error(c),  // Handle unknown characters or errors
         }
     }
 
+    /// Advances and returns the next character, or '\0' if at the end.
     fn advance(&mut self) -> char {
-        let c = self.source.chars().nth(self.current).unwrap();
-        self.current += 1;
-        c
+        if let Some(c) = self.source.chars().nth(self.current) {
+            self.current += 1;
+            c
+        } else {
+            '\0' // Null character to signify the end of the input
+        }
     }
 
     fn add_token(&mut self, token_type: TokenType) {
@@ -103,28 +108,27 @@ impl Scanner {
         self.current >= self.source.len()
     }
 
-    // Check if the next character matches the expected character.
     fn match_next(&mut self, expected: char) -> bool {
         if self.is_at_end() {
             return false;
         }
 
-        if self.source.chars().nth(self.current).unwrap() != expected {
-            return false;
+        if let Some(next_char) = self.source.chars().nth(self.current) {
+            if next_char == expected {
+                self.current += 1; // Consume the next character
+                return true;
+            }
         }
-
-        self.current += 1; // Consume the next character
-        true
+        false
     }
 
     // Skip the rest of the line when encountering or `//`
     fn skip_to_end_of_line(&mut self) {
-        while !self.is_at_end() {
-            match self.source.chars().nth(self.current) {
-                Some('\n') => break, // Stop at the end of the line
-                Some(_) => self.current += 1, // Keep advancing
-                None => break, // End of the file, stop advancing
+        while let Some(c) = self.source.chars().nth(self.current) {
+            if c == '\n' {
+                break;
             }
+            self.current += 1; // Advance to the next character
         }
     }
 
