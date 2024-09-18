@@ -50,6 +50,7 @@ fn main() {
                         TokenType::GREATER_EQUAL => println!("GREATER_EQUAL >= null"),
                         TokenType::LESS => println!("LESS < null"),
                         TokenType::LESS_EQUAL => println!("LESS_EQUAL <= null"),
+                        TokenType::SLASH => println!("SLASH \\ null"),
                         TokenType::EOF => println!("EOF  null"),
                     }
                 }

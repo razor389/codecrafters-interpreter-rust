@@ -73,6 +73,14 @@ impl Scanner {
                     self.add_token(TokenType::GREATER);
                 }
             }
+            '\\' =>{
+                if self.match_next('\\'){
+                    self.skip_to_end_of_line();
+                }
+                else{
+                    self.add_token(TokenType::SLASH);
+                }
+            }
             '\n' => self.line += 1, // Handle line breaks
             // Add more token matching cases here
             _ => self.error(c),  // Handle unknown characters or errors
@@ -107,6 +115,13 @@ impl Scanner {
 
         self.current += 1; // Consume the next character
         true
+    }
+
+    // Skip the rest of the line when encountering `\\`
+    fn skip_to_end_of_line(&mut self) {
+        while !self.is_at_end() && self.source.chars().nth(self.current).unwrap() != '\n' {
+            self.current += 1;
+        }
     }
 
     // Error reporting function for unexpected characters

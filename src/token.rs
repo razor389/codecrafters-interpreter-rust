@@ -21,6 +21,7 @@ pub enum TokenType {
     LESS_EQUAL,    // <=
     GREATER,       // >
     GREATER_EQUAL, // >=
+    SLASH,         // /
     // Add more as we expand the language spec
     
     // End of file
