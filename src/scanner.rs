@@ -131,6 +131,7 @@ impl Scanner {
     // Skip the rest of the line when encountering `//`
     fn skip_to_end_of_line(&mut self) {
         while let Some(c) = self.source.chars().nth(self.current) {
+            debug!("Looping here");
             if c == '\n' {
                 break;
             }
@@ -140,7 +141,7 @@ impl Scanner {
 
     // Error reporting function for unexpected characters
     fn error(&mut self, unexpected_char: char) {
-        error!("[line {}] Error: Unexpected character: '{}'", self.line, unexpected_char);
+        eprintln!("[line {}] Error: Unexpected character: '{}'", self.line, unexpected_char);
         self.error_occurred = true;
     }
 
