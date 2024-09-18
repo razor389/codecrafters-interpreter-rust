@@ -100,6 +100,8 @@ impl Scanner {
             self.current += 1;
             c
         } else {
+
+            debug!("hit null character");
             '\0' // Null character to signify the end of the input
         }
     }
