@@ -25,6 +25,7 @@ impl Scanner {
 
     pub fn scan_tokens(&mut self) {
         while !self.is_at_end() {
+            debug!("scanning token");
             self.start = self.current;
             self.scan_token();
         }
