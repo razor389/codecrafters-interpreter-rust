@@ -44,6 +44,8 @@ fn main() {
                         TokenType::SEMICOLON => println!("SEMICOLON ; null"),
                         TokenType::EQUAL => println!("EQUAL = null"),
                         TokenType::EQUAL_EQUAL => println!("EQUAL_EQUAL == null"),
+                        TokenType::BANG => println!("BANG ! null"),
+                        TokenType::BANG_EQUAL => println!("BANG_EQUAL != null"),
                         TokenType::EOF => println!("EOF  null"),
                     }
                 }

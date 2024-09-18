@@ -15,6 +15,8 @@ pub enum TokenType {
     SEMICOLON,     // ;
     EQUAL,         // =
     EQUAL_EQUAL,   // ==
+    BANG,          // !
+    BANG_EQUAL,    // !=
     // Add more as we expand the language spec
     
     // End of file
@@ -22,6 +24,7 @@ pub enum TokenType {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
