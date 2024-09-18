@@ -142,7 +142,7 @@ impl Scanner {
 
     // Error reporting function for unexpected characters
     fn error(&mut self, unexpected_char: char) {
-        eprintln!("[line {}] Error: Unexpected character: '{}'", self.line, unexpected_char);
+        eprintln!("[line {}] Error: Unexpected character: {}", self.line, unexpected_char);
         self.error_occurred = true;
     }
 
