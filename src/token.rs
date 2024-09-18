@@ -3,10 +3,14 @@
 #[derive(Debug)]
 pub enum TokenType {
     // Single-character tokens
-    LEFT_PAREN,
-    RIGHT_PAREN,
-    LEFT_BRACE,
-    RIGHT_BRACE,
+    LEFT_PAREN,    // (
+    RIGHT_PAREN,   // )
+    LEFT_BRACE,    // {
+    RIGHT_BRACE,   // }
+    STAR,          // *
+    DOT,           // .
+    COMMA,         // ,
+    PLUS,          // +
     // Add more as we expand the language spec
     
     // End of file

@@ -6,6 +6,7 @@ pub struct Scanner {
     tokens: Vec<Token>,
     start: usize,
     current: usize,
+    line: usize, // Track the current line number
 }
 
 impl Scanner {
@@ -15,6 +16,7 @@ impl Scanner {
             tokens: Vec::new(),
             start: 0,
             current: 0,
+            line: 1, // Start at line 1
         }
     }
 
@@ -33,8 +35,13 @@ impl Scanner {
             ')' => self.add_token(TokenType::RIGHT_PAREN),
             '{' => self.add_token(TokenType::LEFT_BRACE),
             '}' => self.add_token(TokenType::RIGHT_BRACE),
+            '*' => self.add_token(TokenType::STAR),
+            '.' => self.add_token(TokenType::DOT),
+            ',' => self.add_token(TokenType::COMMA),
+            '+' => self.add_token(TokenType::PLUS),
+            '\n' => self.line += 1, // Handle line breaks
             // Add more token matching cases here
-            _ => {} // Handle unknown characters or errors
+            _ => self.error(c),  // Handle unknown characters or errors
         }
     }
 
@@ -54,6 +61,11 @@ impl Scanner {
         self.current >= self.source.len()
     }
 
+    // Error reporting function for unexpected characters
+    fn error(&self, unexpected_char: char) {
+        eprintln!("[line {}] Error: Unexpected character: '{}'", self.line, unexpected_char);
+    }
+    
     pub fn get_tokens(&self) -> &Vec<Token> {
         &self.tokens
     }

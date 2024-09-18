@@ -35,6 +35,10 @@ fn main() {
                         TokenType::RIGHT_PAREN => println!("RIGHT_PAREN ) null"),
                         TokenType::LEFT_BRACE => println!("LEFT_BRACE {{ null"),
                         TokenType::RIGHT_BRACE => println!("RIGHT_BRACE }} null"),
+                        TokenType::STAR => println!("STAR * null"),
+                        TokenType::DOT => println!("DOT . null"),
+                        TokenType::COMMA => println!("COMMA , null"),
+                        TokenType::PLUS => println!("PLUS + null"),
                         TokenType::EOF => println!("EOF  null"),
                     }
                 }
