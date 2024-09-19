@@ -211,12 +211,12 @@ impl Scanner {
         }
     
         // Check if there's a fractional part (e.g., 1234.5678)
-        let mut is_float = false;
+        let mut has_fractional_part = false;
         if let Some('.') = self.peek() {
             if let Some(next) = self.peek_next() {
                 if next.is_digit(10) {
                     self.advance(); // Consume the '.'
-                    is_float = true;
+                    has_fractional_part = true;
                     while let Some(c) = self.peek() {
                         if c.is_digit(10) {
                             self.advance(); // Consume the rest of the number
@@ -228,17 +228,29 @@ impl Scanner {
             }
         }
     
-        // Extract the lexeme and convert to f64
+        // Extract the lexeme
         let lexeme = self.source[self.start..self.current].to_string();
+    
+        // Parse the literal value as f64
         let literal_value: f64 = lexeme.parse::<f64>().unwrap();
     
-        // If it's a float, display the full precision; if it's an integer, append ".0"
-        let literal_str = if is_float{
-            lexeme // For floats, keep full precision
+        // If there is a fractional part, check if it's all zeros
+        let literal_str = if has_fractional_part && lexeme.contains('.') {
+            let parts: Vec<&str> = lexeme.split('.').collect();
+            let fractional_part = parts[1];
+    
+            // If the fractional part is all zeros, treat it as an integer (e.g., "200.00" -> "200.0")
+            if fractional_part.chars().all(|c| c == '0') {
+                format!("{:.1}", literal_value)  // Format as "x.0"
+            } else {
+                literal_value.to_string()  // Otherwise, keep the full precision
+            }
         } else {
-            format!("{:.1}", literal_value)  // Format integers as "x.0"
+            // If there's no fractional part, it's an integer
+            format!("{:.1}", literal_value)
         };
     
+        // Add the token with the original lexeme and formatted literal
         self.add_token_with_literal(TokenType::NUMBER, Some(literal_str));
     }
     
