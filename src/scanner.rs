@@ -201,6 +201,7 @@ impl Scanner {
 
     /// Scan number literals (integer or float)
     fn scan_number(&mut self) {
+        // Consume digits for the integer part
         while let Some(c) = self.peek() {
             if c.is_digit(10) {
                 self.advance();
@@ -208,12 +209,14 @@ impl Scanner {
                 break;
             }
         }
-
+    
         // Check if there's a fractional part (e.g., 1234.5678)
+        let mut is_float = false;
         if let Some('.') = self.peek() {
             if let Some(next) = self.peek_next() {
                 if next.is_digit(10) {
                     self.advance(); // Consume the '.'
+                    is_float = true;
                     while let Some(c) = self.peek() {
                         if c.is_digit(10) {
                             self.advance(); // Consume the rest of the number
@@ -224,13 +227,21 @@ impl Scanner {
                 }
             }
         }
-
+    
         // Extract the lexeme and convert to f64
         let lexeme = self.source[self.start..self.current].to_string();
-        let literal_value = lexeme.parse::<f64>().unwrap();
-        self.add_token_with_literal(TokenType::NUMBER, Some(format!("{:.1}", literal_value)));
+        let literal_value: f64 = lexeme.parse::<f64>().unwrap();
+    
+        // If it's a float, display the full precision; if it's an integer, append ".0"
+        let literal_str = if is_float {
+            literal_value.to_string()  // Keep full precision for floats
+        } else {
+            format!("{:.1}", literal_value)  // Format integers as "x.0"
+        };
+    
+        self.add_token_with_literal(TokenType::NUMBER, Some(literal_str));
     }
-
+    
     /// Peek at the current character without advancing
     fn peek(&self) -> Option<char> {
         self.source.chars().nth(self.current)
