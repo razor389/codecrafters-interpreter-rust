@@ -143,11 +143,12 @@ impl Scanner {
         while let Some(c) = self.advance() {
             if c == '"' {
                 // Closing quote found, add the string token
-                let value = self.source[self.start + 1..self.current - 1].to_string(); // Exclude quotes
+                let value_with_quotes = self.source[self.start.. self.current].to_string();
+                let value_without_quotes = self.source[self.start + 1..self.current - 1].to_string(); // Exclude quotes
                 self.tokens.push(Token::new(
                     TokenType::STRING,
-                    value.clone(),    // Lexeme (string without quotes)
-                    Some(value),      // Literal value (the actual string content)
+                    value_with_quotes.clone(),    // Lexeme (string with quotes)
+                    Some(value_without_quotes),      // Literal value (the actual string content)
                 ));
                 return;
             } else if c == '\n' {
