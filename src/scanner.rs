@@ -156,7 +156,7 @@ impl Scanner {
         }
 
         // If we reach here, the string was unterminated
-        self.error_message("Unterminated string");
+        self.error_message("Unterminated string.");
     }
 
     // Skip the rest of the line when encountering `//`
