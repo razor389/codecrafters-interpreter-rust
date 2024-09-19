@@ -233,7 +233,7 @@ impl Scanner {
         let literal_value: f64 = lexeme.parse::<f64>().unwrap();
     
         // If it's a float, display the full precision; if it's an integer, append ".0"
-        let literal_str = if is_float || lexeme.contains('.') {
+        let literal_str = if is_float{
             lexeme // For floats, keep full precision
         } else {
             format!("{:.1}", literal_value)  // Format integers as "x.0"
