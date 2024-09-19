@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::token::{Token, TokenType};
 use log::{debug, info};  // Import log macros
 
@@ -8,18 +10,37 @@ pub struct Scanner {
     current: usize,
     line: usize, // Track the current line number
     error_occurred: bool,
+    keywords: HashMap<String, TokenType>,
 }
 
 impl Scanner {
     pub fn new(source: String) -> Self {
-        info!("Initializing scanner with source of length: {}", source.len());
+        let mut keywords = HashMap::new();
+        keywords.insert("and".to_string(), TokenType::AND);
+        keywords.insert("class".to_string(), TokenType::CLASS);
+        keywords.insert("else".to_string(), TokenType::ELSE);
+        keywords.insert("false".to_string(), TokenType::FALSE);
+        keywords.insert("for".to_string(), TokenType::FOR);
+        keywords.insert("fun".to_string(), TokenType::FUN);
+        keywords.insert("if".to_string(), TokenType::IF);
+        keywords.insert("nil".to_string(), TokenType::NIL);
+        keywords.insert("or".to_string(), TokenType::OR);
+        keywords.insert("print".to_string(), TokenType::PRINT);
+        keywords.insert("return".to_string(), TokenType::RETURN);
+        keywords.insert("super".to_string(), TokenType::SUPER);
+        keywords.insert("this".to_string(), TokenType::THIS);
+        keywords.insert("true".to_string(), TokenType::TRUE);
+        keywords.insert("var".to_string(), TokenType::VAR);
+        keywords.insert("while".to_string(), TokenType::WHILE);
+
         Scanner {
             source,
             tokens: Vec::new(),
             start: 0,
             current: 0,
-            line: 1, // Start at line 1
+            line: 1,
             error_occurred: false,
+            keywords,  // Initialize the keywords map
         }
     }
 
@@ -104,7 +125,11 @@ impl Scanner {
             _ => {
                 if c.is_digit(10) {
                     self.scan_number(); // Handle number literals
-                } else {
+                } 
+                else if c.is_alphabetic() || c == '_' {
+                    self.scan_identifier(); // Handle identifiers and reserved words
+                }
+                else {
                     let error_msg = format!("Unexpected character: {}", c);
                     self.error_message(&error_msg);
                 }
@@ -151,6 +176,27 @@ impl Scanner {
         let text = self.source[self.start..self.current].to_string();
         debug!("Adding token with literal: {:?}, lexeme: {}, literal: {:?}", token_type, text, literal);
         self.tokens.push(Token::new(token_type, text, literal));
+    }
+
+    /// Scan an identifier or reserved word
+    fn scan_identifier(&mut self) {
+        while let Some(c) = self.peek() {
+            if c.is_alphanumeric() || c == '_' {
+                self.advance();
+            } else {
+                break;
+            }
+        }
+
+        // Extract the identifier lexeme
+        let lexeme = self.source[self.start..self.current].to_string();
+
+        // Check if it's a reserved word
+        if let Some(token_type) = self.keywords.get(&lexeme) {
+            self.add_token(token_type.clone());
+        } else {
+            self.add_token(TokenType::IDENTIFIER);
+        }
     }
 
     /// Scan number literals (integer or float)

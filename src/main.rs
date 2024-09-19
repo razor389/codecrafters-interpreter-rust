@@ -7,7 +7,6 @@ use std::io::{self, Write};
 use std::process;
 use env_logger::Env;
 use scanner::Scanner;
-use token::Token;
 use token::TokenType;
 use env_logger;
 
@@ -60,6 +59,26 @@ fn main() {
                         TokenType::SLASH => println!("SLASH / null"),
                         TokenType::STRING => println!("STRING {} {}", token.lexeme, token.literal.clone().unwrap()),
                         TokenType::NUMBER => println!("NUMBER {} {}", token.lexeme, token.literal.clone().unwrap()),
+                        // Identifiers and keywords
+                        TokenType::IDENTIFIER => println!("IDENTIFIER {} null", token.lexeme),
+                        TokenType::AND => println!("AND and null"),
+                        TokenType::CLASS => println!("CLASS class null"),
+                        TokenType::ELSE => println!("ELSE else null"),
+                        TokenType::FALSE => println!("FALSE false null"),
+                        TokenType::FOR => println!("FOR for null"),
+                        TokenType::FUN => println!("FUN fun null"),
+                        TokenType::IF => println!("IF if null"),
+                        TokenType::NIL => println!("NIL nil null"),
+                        TokenType::OR => println!("OR or null"),
+                        TokenType::PRINT => println!("PRINT print null"),
+                        TokenType::RETURN => println!("RETURN return null"),
+                        TokenType::SUPER => println!("SUPER super null"),
+                        TokenType::THIS => println!("THIS this null"),
+                        TokenType::TRUE => println!("TRUE true null"),
+                        TokenType::VAR => println!("VAR var null"),
+                        TokenType::WHILE => println!("WHILE while null"),
+
+                        // End of file
                         TokenType::EOF => println!("EOF  null"),
                     }
                 }

@@ -1,6 +1,6 @@
 // token.rs
 #[allow(non_camel_case_types)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum TokenType {
     // Single-character tokens
     LEFT_PAREN,    // (
@@ -23,9 +23,29 @@ pub enum TokenType {
     GREATER_EQUAL, // >=
     SLASH,         // /
 
+    //literals
+    IDENTIFIER,    // identifier (variable name)
     STRING,        // string literal
     NUMBER,        // number literal (integer or float)
-    // Add more as we expand the language spec
+    
+    // keywords
+    // Keywords
+    AND,
+    CLASS,
+    ELSE,
+    FALSE,
+    FOR,
+    FUN,
+    IF,
+    NIL,
+    OR,
+    PRINT,
+    RETURN,
+    SUPER,
+    THIS,
+    TRUE,
+    VAR,
+    WHILE,
     
     // End of file
     EOF,
