@@ -33,6 +33,8 @@ impl Scanner {
 
     /// Scans the next token, returning `Some(())` if a token was found, or `None` if end of file is reached.
     fn scan_token(&mut self) -> Option<()> {
+        self.start = self.current;  
+        
         let c = self.advance()?;
         debug!("Scanning token at line {}, character: '{}'", self.line, c);
 
