@@ -182,7 +182,7 @@ impl Scanner {
         // Extract the lexeme and convert to f64
         let lexeme = self.source[self.start..self.current].to_string();
         let literal_value = lexeme.parse::<f64>().unwrap();
-        self.add_token_with_literal(TokenType::NUMBER, Some(literal_value.to_string()));
+        self.add_token_with_literal(TokenType::NUMBER, Some(format!("{:.1}", literal_value)));
     }
 
     /// Peek at the current character without advancing
