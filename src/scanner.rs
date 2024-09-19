@@ -234,7 +234,7 @@ impl Scanner {
     
         // If it's a float, display the full precision; if it's an integer, append ".0"
         let literal_str = if is_float || lexeme.contains('.') {
-            literal_value.to_string() // For floats, keep full precision
+            lexeme // For floats, keep full precision
         } else {
             format!("{:.1}", literal_value)  // Format integers as "x.0"
         };
