@@ -90,6 +90,12 @@ impl Scanner {
                 self.line += 1;
                 debug!("New line encountered. Line number now: {}", self.line);
             }
+            '\t' => {
+                debug!("Tab character encountered, no action taken");
+            }
+            ' ' => {
+                debug!("Space character encountered, no action taken");
+            }
             _ => self.error(c),  // Handle unknown characters or errors
         }
 
