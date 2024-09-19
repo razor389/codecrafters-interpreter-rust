@@ -57,6 +57,7 @@ fn main() {
                         TokenType::LESS => println!("LESS < null"),
                         TokenType::LESS_EQUAL => println!("LESS_EQUAL <= null"),
                         TokenType::SLASH => println!("SLASH / null"),
+                        TokenType::STRING => println!("STRING \"{}\" {}", token.lexeme, token.literal.clone().unwrap()),
                         TokenType::EOF => println!("EOF  null"),
                     }
                 }

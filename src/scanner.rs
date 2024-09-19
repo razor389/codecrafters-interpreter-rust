@@ -86,6 +86,9 @@ impl Scanner {
                     self.add_token(TokenType::SLASH);
                 }
             }
+            '"' => {
+                self.scan_string(); // Handle string literal
+            }
             '\n' => {
                 self.line += 1;
                 debug!("New line encountered. Line number now: {}", self.line);
@@ -96,7 +99,7 @@ impl Scanner {
             ' ' => {
                 debug!("Space character encountered, no action taken");
             }
-            _ => self.error(c),  // Handle unknown characters or errors
+            _ => {let error_msg = format!("Unexpected character: {}", c); self.error_message(&error_msg)}  // Handle unknown characters or errors
         }
 
         Some(())
@@ -135,6 +138,27 @@ impl Scanner {
         false
     }
 
+    /// Scan string literals and handle unterminated strings
+    fn scan_string(&mut self) {
+        while let Some(c) = self.advance() {
+            if c == '"' {
+                // Closing quote found, add the string token
+                let value = self.source[self.start + 1..self.current - 1].to_string(); // Exclude quotes
+                self.tokens.push(Token::new(
+                    TokenType::STRING,
+                    value.clone(),    // Lexeme (string without quotes)
+                    Some(value),      // Literal value (the actual string content)
+                ));
+                return;
+            } else if c == '\n' {
+                self.line += 1; // Handle multi-line strings
+            }
+        }
+
+        // If we reach here, the string was unterminated
+        self.error_message("Unterminated string");
+    }
+
     // Skip the rest of the line when encountering `//`
     fn skip_to_end_of_line(&mut self) {
         // Continue advancing until we find a newline or reach the end of the input
@@ -146,9 +170,9 @@ impl Scanner {
         }
     }
 
-    // Error reporting function for unexpected characters
-    fn error(&mut self, unexpected_char: char) {
-        eprintln!("[line {}] Error: Unexpected character: {}", self.line, unexpected_char);
+    /// Error reporting for specific messages
+    fn error_message(&mut self, message: &str) {
+        eprintln!("[line {}] Error: {}", self.line, message);
         self.error_occurred = true;
     }
 

@@ -22,6 +22,8 @@ pub enum TokenType {
     GREATER,       // >
     GREATER_EQUAL, // >=
     SLASH,         // /
+
+    STRING,        // string literal
     // Add more as we expand the language spec
     
     // End of file
