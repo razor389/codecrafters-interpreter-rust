@@ -7,6 +7,7 @@ use std::io::{self, Write};
 use std::process;
 use env_logger::Env;
 use scanner::Scanner;
+use token::Token;
 use token::TokenType;
 use env_logger;
 
@@ -58,6 +59,7 @@ fn main() {
                         TokenType::LESS_EQUAL => println!("LESS_EQUAL <= null"),
                         TokenType::SLASH => println!("SLASH / null"),
                         TokenType::STRING => println!("STRING {} {}", token.lexeme, token.literal.clone().unwrap()),
+                        TokenType::NUMBER => println!("NUMBER {} {}", token.lexeme, token.literal.clone().unwrap()),
                         TokenType::EOF => println!("EOF  null"),
                     }
                 }

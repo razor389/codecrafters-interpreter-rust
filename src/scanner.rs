@@ -34,7 +34,7 @@ impl Scanner {
     /// Scans the next token, returning `Some(())` if a token was found, or `None` if end of file is reached.
     fn scan_token(&mut self) -> Option<()> {
         self.start = self.current;  
-        
+
         let c = self.advance()?;
         debug!("Scanning token at line {}, character: '{}'", self.line, c);
 
@@ -101,7 +101,14 @@ impl Scanner {
             ' ' => {
                 debug!("Space character encountered, no action taken");
             }
-            _ => {let error_msg = format!("Unexpected character: {}", c); self.error_message(&error_msg)}  // Handle unknown characters or errors
+            _ => {
+                if c.is_digit(10) {
+                    self.scan_number(); // Handle number literals
+                } else {
+                    let error_msg = format!("Unexpected character: {}", c);
+                    self.error_message(&error_msg);
+                }
+            } // Handle unknown characters or errors
         }
 
         Some(())
@@ -138,6 +145,54 @@ impl Scanner {
             }
         }
         false
+    }
+
+    fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<String>) {
+        let text = self.source[self.start..self.current].to_string();
+        debug!("Adding token with literal: {:?}, lexeme: {}, literal: {:?}", token_type, text, literal);
+        self.tokens.push(Token::new(token_type, text, literal));
+    }
+
+    /// Scan number literals (integer or float)
+    fn scan_number(&mut self) {
+        while let Some(c) = self.peek() {
+            if c.is_digit(10) {
+                self.advance();
+            } else {
+                break;
+            }
+        }
+
+        // Check if there's a fractional part (e.g., 1234.5678)
+        if let Some('.') = self.peek() {
+            if let Some(next) = self.peek_next() {
+                if next.is_digit(10) {
+                    self.advance(); // Consume the '.'
+                    while let Some(c) = self.peek() {
+                        if c.is_digit(10) {
+                            self.advance(); // Consume the rest of the number
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Extract the lexeme and convert to f64
+        let lexeme = self.source[self.start..self.current].to_string();
+        let literal_value = lexeme.parse::<f64>().unwrap();
+        self.add_token_with_literal(TokenType::NUMBER, Some(literal_value.to_string()));
+    }
+
+    /// Peek at the current character without advancing
+    fn peek(&self) -> Option<char> {
+        self.source.chars().nth(self.current)
+    }
+
+    /// Peek at the next character (after the current one) without advancing
+    fn peek_next(&self) -> Option<char> {
+        self.source.chars().nth(self.current + 1)
     }
 
     /// Scan string literals and handle unterminated strings

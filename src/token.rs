@@ -24,6 +24,7 @@ pub enum TokenType {
     SLASH,         // /
 
     STRING,        // string literal
+    NUMBER,        // number literal (integer or float)
     // Add more as we expand the language spec
     
     // End of file
