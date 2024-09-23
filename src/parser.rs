@@ -1,5 +1,5 @@
 use crate::token::{Token, TokenType};
-use crate::expr::{Expr, LiteralValue};
+use crate::expr::Expr;
 
 pub struct Parser {
     tokens: Vec<Token>,
@@ -110,27 +110,26 @@ impl Parser {
     // primary → NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")"
     fn primary(&mut self) -> Option<Expr> {
         if self.match_token(&[TokenType::NUMBER]) {
-            let value = self.previous().literal.clone()?.parse::<f64>().ok()?;
-            return Some(Expr::Literal(LiteralValue::Number(value)));
+            let value = self.previous().literal.clone();
+            return Some(Expr::Literal(value));
         }
 
         if self.match_token(&[TokenType::STRING]) {
-            let value = self.previous().literal.clone()?;
-            return Some(Expr::Literal(LiteralValue::String(value)));
+            let value = self.previous().literal.clone();
+            return Some(Expr::Literal(value));
         }
 
         if self.match_token(&[TokenType::TRUE]) {
-            return Some(Expr::Literal(LiteralValue::Boolean(true)));
+            return Some(Expr::Literal(Some("true".to_string())));
         }
 
         if self.match_token(&[TokenType::FALSE]) {
-            return Some(Expr::Literal(LiteralValue::Boolean(false)));
+            return Some(Expr::Literal(Some("false".to_string())));
         }
 
         if self.match_token(&[TokenType::NIL]) {
-            return Some(Expr::Literal(LiteralValue::Nil));
+            return Some(Expr::Literal(None));
         }
-
         if self.match_token(&[TokenType::LEFT_PAREN]) {
             let expr = self.expression();
             self.consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.")?;

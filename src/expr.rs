@@ -1,13 +1,6 @@
 use crate::token::Token;
 use std::fmt;
 
-pub enum LiteralValue {
-    Number(f64),
-    String(String),
-    Boolean(bool),
-    Nil,
-}
-
 pub enum Expr {
     Binary {
         left: Box<Expr>,
@@ -15,7 +8,7 @@ pub enum Expr {
         right: Box<Expr>,
     },
     Grouping(Box<Expr>),
-    Literal(LiteralValue),
+    Literal(Option<String>),
     Unary {
         operator: Token,
         right: Box<Expr>,
@@ -32,10 +25,8 @@ impl fmt::Display for Expr {
                 write!(f, "(group {})", expr)
             }
             Expr::Literal(value) => match value {
-                LiteralValue::Number(n) => write!(f, "{}", n),
-                LiteralValue::String(s) => write!(f, "\"{}\"", s),
-                LiteralValue::Boolean(b) => write!(f, "{}", b),
-                LiteralValue::Nil => write!(f, "nil"),
+                Some(v) => write!(f, "{}", v),
+                None => write!(f, "nil"),
             },
             Expr::Unary { operator, right } => {
                 write!(f, "({} {})", operator.lexeme, right)
