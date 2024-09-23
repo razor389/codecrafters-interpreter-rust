@@ -1,6 +1,8 @@
+use std::fmt;
+
 // token.rs
 #[allow(non_camel_case_types)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenType {
     // Single-character tokens
     LEFT_PAREN,    // (
@@ -28,7 +30,6 @@ pub enum TokenType {
     STRING,        // string literal
     NUMBER,        // number literal (integer or float)
     
-    // keywords
     // Keywords
     AND,
     CLASS,
@@ -51,12 +52,11 @@ pub enum TokenType {
     EOF,
 }
 
-#[derive(Debug)]
-#[allow(dead_code)]
+#[derive(Debug, Clone)]
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
-    pub literal: Option<String>, // For tokens that have a literal value (not used here)
+    pub literal: Option<String>, 
 }
 
 impl Token {
@@ -66,5 +66,16 @@ impl Token {
             lexeme,
             literal,
         }
+    }
+}
+
+// Implement Display for Token to format it as "<TokenType> <Lexeme> <Literal>"
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let literal_display = match &self.literal {
+            Some(lit) => lit.clone(),
+            None => "null".to_string(),
+        };
+        write!(f, "{:?} {} {}", self.token_type, self.lexeme, literal_display)
     }
 }
