@@ -65,7 +65,12 @@ impl Parser {
             }
         }
 
-        self.consume(TokenType::RIGHT_BRACE, "Expect '}' after block.")?;
+        // Ensure the block is closed with a `}`
+        if self.is_at_end() || !self.match_token(&[TokenType::RIGHT_BRACE]) {
+            self.error("Expect '}' after block.");
+            return None;
+        }
+
         Some(statements)
     }
 
