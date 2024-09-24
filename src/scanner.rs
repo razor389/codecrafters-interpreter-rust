@@ -271,7 +271,7 @@ impl Scanner {
                 // Closing quote found, add the string token
                 let value_with_quotes = self.source[self.start.. self.current].to_string();
                 let value_without_quotes = self.source[self.start + 1..self.current - 1].to_string(); // Exclude quotes
-                debug!("Adding string token, lexeme: {}, literal: {:?}", value_with_quotes.clone(), value_without_quotes.clone());
+                debug!("Adding string token, lexeme: {}, literal: {}", value_with_quotes.clone(), value_without_quotes.clone());
                 self.tokens.push(Token::new(
                     TokenType::STRING,
                     value_with_quotes.clone(),    // Lexeme (string with quotes)
