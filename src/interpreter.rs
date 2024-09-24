@@ -20,14 +20,25 @@ impl fmt::Display for RuntimeError {
 impl Error for RuntimeError {}
 
 // Environment for storing variables
+#[derive(Clone)]
 pub struct Environment {
     values: HashMap<String, LiteralValue>,
+    enclosing: Option<Box<Environment>>,
 }
 
 impl Environment {
     pub fn new() -> Self {
         Environment {
             values: HashMap::new(),
+            enclosing: None,
+        }
+    }
+
+     // Create a new environment that has a parent (enclosing scope)
+     pub fn from_enclosing(enclosing: Environment) -> Self {
+        Environment {
+            values: HashMap::new(),
+            enclosing: Some(Box::new(enclosing)),
         }
     }
 
@@ -39,6 +50,9 @@ impl Environment {
         log::debug!("getting var: {}", name);
         if let Some(value) = self.values.get(name) {
             Ok(value.clone())
+        } else if let Some(enclosing) = &self.enclosing {
+            // If not found in the current environment, check the enclosing one
+            enclosing.get(name, line)
         } else {
             Err(RuntimeError {
                 message: format!("Undefined variable '{}'.", name),
@@ -51,6 +65,9 @@ impl Environment {
         if self.values.contains_key(name) {
             self.values.insert(name.to_string(), value);
             Ok(())
+        } else if let Some(enclosing) = &mut self.enclosing {
+            // If not found in the current environment, try to assign in the enclosing one
+            enclosing.assign(name, value, line)
         } else {
             Err(RuntimeError {
                 message: format!("Undefined variable '{}'.", name),
@@ -79,6 +96,14 @@ impl Interpreter {
         Ok(())
     }
 
+    // Execute a block of statements in a new environment
+    fn execute_block(&mut self, statements: &[Stmt], environment: Environment) -> Result<(), RuntimeError> {
+        let previous = std::mem::replace(&mut self.environment, environment); // Enter a new scope
+        let result = self.interpret(statements.to_vec()); // Execute the block
+        self.environment = previous; // Exit the scope by restoring the old environment
+        result
+    }
+
     // Execute statements
     fn execute(&mut self, stmt: &Stmt) -> Result<(), RuntimeError> {
         match stmt {
@@ -100,6 +125,10 @@ impl Interpreter {
                 self.environment.define(name.lexeme.clone(), value);
                 log::debug!("defined variable {}", name.lexeme.clone());
                 Ok(())
+            }
+            Stmt::Block(statements) => {
+                // Create a new environment and execute the block
+                self.execute_block(statements, Environment::from_enclosing(self.environment.clone()))
             }
         }
     }

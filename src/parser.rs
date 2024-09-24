@@ -55,10 +55,27 @@ impl Parser {
         Some(Stmt::Var { name, initializer })
     }
 
+    // Block → "{" declaration* "}"
+    fn block(&mut self) -> Option<Vec<Stmt>> {
+        let mut statements = Vec::new();
+
+        while !self.check(TokenType::RIGHT_BRACE) && !self.is_at_end() {
+            if let Some(stmt) = self.declaration() {
+                statements.push(stmt);
+            }
+        }
+
+        self.consume(TokenType::RIGHT_BRACE, "Expect '}' after block.")?;
+        Some(statements)
+    }
+
     // Statement → print statement | expression statement
     fn statement(&mut self) -> Option<Stmt> {
         if self.match_token(&[TokenType::PRINT]) {
             self.print_statement()
+        } else if self.match_token(&[TokenType::LEFT_BRACE]) {
+            // If it's a block statement, return a block
+            Some(Stmt::Block(self.block()?))
         } else {
             self.expression_statement()
         }
