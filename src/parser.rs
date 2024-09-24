@@ -125,6 +125,7 @@ impl Parser {
             let value = self.assignment(); // Recursively call assignment to parse the right-hand side
     
             if let Some(Expr::Variable(name)) = expr {
+                log::debug!("assigning to: {}", name);
                 return Some(Expr::Assign { name, value: Box::new(value?) });
             }
     
