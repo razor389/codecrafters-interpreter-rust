@@ -35,10 +35,23 @@ impl Interpreter {
         }
     }
 
-    // Visitor methods for each expression type
     fn visit_literal(&self, value: &Option<String>) -> Result<String, RuntimeError> {
         match value {
-            Some(v) => Ok(v.clone()),
+            Some(v) => {
+                // Try to parse the value as a float or integer and format accordingly
+                if let Ok(num) = v.parse::<f64>() {
+                    if num.fract() == 0.0 {
+                        // It's an integer, format without a decimal point
+                        Ok(format!("{}", num as i64))
+                    } else {
+                        // It's a float, format it normally
+                        Ok(format!("{}", num))
+                    }
+                } else {
+                    // It's a string, return it directly
+                    Ok(v.clone())
+                }
+            }
             None => Ok("nil".to_string()),
         }
     }
