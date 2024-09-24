@@ -63,6 +63,7 @@ impl Environment {
 
     pub fn assign(&mut self, name: &str, value: LiteralValue, line: usize) -> Result<(), RuntimeError> {
         if self.values.contains_key(name) {
+            log::debug!("assigning {:?} to {}", value, name);
             self.values.insert(name.to_string(), value);
             Ok(())
         } else if let Some(enclosing) = &mut self.enclosing {
