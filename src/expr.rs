@@ -34,7 +34,16 @@ impl fmt::Display for Expr {
             }
             Expr::Literal(literal) => match literal {
                 LiteralValue::StringLiteral(s) => write!(f, "{}", s),
-                LiteralValue::NumberLiteral(n) => write!(f, "{}", n),
+                LiteralValue::NumberLiteral(n) => {
+                    // Print number literals as floats
+                    if n.fract() == 0.0 {
+                        // Whole number, format with `.0`
+                        write!(f, "{:.1}", n)
+                    } else {
+                        // Floating-point number, print with full precision
+                        write!(f, "{}", n)
+                    }
+                }
                 LiteralValue::BooleanLiteral(b) => write!(f, "{}", b),
                 LiteralValue::Nil => write!(f, "nil"),
             },
