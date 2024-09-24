@@ -35,12 +35,15 @@ impl Environment {
         self.values.insert(name, value);
     }
 
-    #[allow(dead_code)]
-    pub fn get(&self, name: &str) -> Result<&LiteralValue, RuntimeError> {
-        self.values.get(name).ok_or_else(|| RuntimeError {
-            message: format!("Undefined variable '{}'.", name),
-            line: 0, // Adjust line handling if necessary
-        })
+    pub fn get(&self, name: &str, line: usize) -> Result<LiteralValue, RuntimeError> {
+        if let Some(value) = self.values.get(name) {
+            Ok(value.clone())
+        } else {
+            Err(RuntimeError {
+                message: format!("Undefined variable '{}'.", name),
+                line,
+            })
+        }
     }
 }
 
@@ -106,6 +109,7 @@ impl Interpreter {
     pub fn evaluate(&self, expr: &Expr) -> Result<LiteralValue, RuntimeError> {
         match expr {
             Expr::Literal(value) => self.visit_literal(value),
+            Expr::Variable(name) => self.environment.get(&name.lexeme, name.line),
             Expr::Unary { operator, right } => self.visit_unary(operator, right),
             Expr::Binary { left, operator, right } => self.visit_binary(left, operator, right),
             Expr::Grouping(expr) => self.visit_grouping(expr),

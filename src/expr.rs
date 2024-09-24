@@ -21,6 +21,7 @@ pub enum Expr {
         operator: Token,
         right: Box<Expr>,
     },
+    Variable(Token),
 }
 
 impl fmt::Display for Expr {
@@ -49,6 +50,10 @@ impl fmt::Display for Expr {
             },
             Expr::Unary { operator, right } => {
                 write!(f, "({} {})", operator.lexeme, right)
+            }
+            // Handle variable expressions like `print baz;`
+            Expr::Variable(token) => {
+                write!(f, "{}", token.lexeme)
             }
         }
     }
