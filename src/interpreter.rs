@@ -1,3 +1,5 @@
+use log::debug;
+
 use crate::expr::{Expr, LiteralValue};
 use crate::token::Token;
 use std::fmt;
@@ -27,6 +29,7 @@ impl Interpreter {
 
     // Evaluate the given expression and return a result as a String or error
     pub fn evaluate(&self, expr: &Expr) -> Result<String, RuntimeError> {
+        debug!("evaluating expr: {}", expr);
         match expr {
             Expr::Literal(value) => self.visit_literal(value),
             Expr::Unary { operator, right } => self.visit_unary(operator, right),
