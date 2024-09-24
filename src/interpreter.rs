@@ -1,5 +1,7 @@
 use crate::expr::{Expr, LiteralValue};
+use crate::stmt::Stmt;
 use crate::token::Token;
+use std::collections::HashMap;
 use std::fmt;
 use std::error::Error;
 
@@ -17,12 +19,71 @@ impl fmt::Display for RuntimeError {
 }
 impl Error for RuntimeError {}
 
-// Interpreter struct to evaluate expressions
-pub struct Interpreter;
+// Environment for storing variables
+pub struct Environment {
+    values: HashMap<String, LiteralValue>,
+}
+
+impl Environment {
+    pub fn new() -> Self {
+        Environment {
+            values: HashMap::new(),
+        }
+    }
+
+    pub fn define(&mut self, name: String, value: LiteralValue) {
+        self.values.insert(name, value);
+    }
+
+    pub fn get(&self, name: &str) -> Result<&LiteralValue, RuntimeError> {
+        self.values.get(name).ok_or_else(|| RuntimeError {
+            message: format!("Undefined variable '{}'.", name),
+            line: 0, // Adjust line handling if necessary
+        })
+    }
+}
+
+// Interpreter struct to evaluate expressions and statements
+pub struct Interpreter {
+    environment: Environment,
+}
 
 impl Interpreter {
     pub fn new() -> Self {
-        Interpreter
+        Interpreter {
+            environment: Environment::new(),
+        }
+    }
+
+    pub fn interpret(&mut self, statements: Vec<Stmt>) -> Result<(), RuntimeError> {
+        for stmt in statements {
+            self.execute(&stmt)?;
+        }
+        Ok(())
+    }
+
+    // Execute statements
+    fn execute(&mut self, stmt: &Stmt) -> Result<(), RuntimeError> {
+        match stmt {
+            Stmt::Print(expr) => {
+                let value = self.evaluate(expr)?;
+                println!("{}", self.literal_to_string(value));
+                Ok(())
+            }
+            Stmt::Expression(expr) => {
+                self.evaluate(expr)?;
+                Ok(())
+            }
+            Stmt::Var { name, initializer } => {
+                let value = if let Some(expr) = initializer {
+                    self.evaluate(expr)?
+                } else {
+                    LiteralValue::Nil
+                };
+                self.environment.define(name.lexeme.clone(), value);
+                Ok(())
+            }
+        }
     }
 
     pub fn literal_to_string(&self, value: LiteralValue) -> String {

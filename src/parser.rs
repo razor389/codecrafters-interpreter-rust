@@ -1,5 +1,6 @@
 use crate::token::{Token, TokenType};
 use crate::expr::{Expr, LiteralValue};
+use crate::stmt::Stmt;
 
 pub struct Parser {
     tokens: Vec<Token>,
@@ -11,8 +12,66 @@ impl Parser {
         Parser { tokens, current: 0 }
     }
 
-    pub fn parse(&mut self) -> Option<Expr> {
+     // Parse a list of statements for the 'run' command
+     pub fn parse_statements(&mut self) -> Option<Vec<Stmt>> {
+        let mut statements = Vec::new();
+        while !self.is_at_end() {
+            if let Some(stmt) = self.declaration() {
+                statements.push(stmt);
+            }
+        }
+        Some(statements)
+    }
+
+    // Parse a single expression for the 'evaluate' command
+    pub fn parse_expression(&mut self) -> Option<Expr> {
         self.expression()
+    }
+
+    // Declaration → variable declaration | statement
+    fn declaration(&mut self) -> Option<Stmt> {
+        if self.match_token(&[TokenType::VAR]) {
+            self.var_declaration()
+        } else {
+            self.statement()
+        }
+    }
+
+    // Variable declaration (e.g., `var a = 5;`)
+    fn var_declaration(&mut self) -> Option<Stmt> {
+        let name = self.consume(TokenType::IDENTIFIER, "Expect variable name.")?.clone();
+
+        let initializer = if self.match_token(&[TokenType::EQUAL]) {
+            Some(self.expression()?)
+        } else {
+            None
+        };
+
+        self.consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.")?;
+        Some(Stmt::Var { name, initializer })
+    }
+
+    // Statement → print statement | expression statement
+    fn statement(&mut self) -> Option<Stmt> {
+        if self.match_token(&[TokenType::PRINT]) {
+            self.print_statement()
+        } else {
+            self.expression_statement()
+        }
+    }
+
+    // Print statement (e.g., `print 5;`)
+    fn print_statement(&mut self) -> Option<Stmt> {
+        let expr = self.expression()?;
+        self.consume(TokenType::SEMICOLON, "Expect ';' after value.")?;
+        Some(Stmt::Print(expr))
+    }
+
+    // Expression statement (e.g., `5 + 3;`)
+    fn expression_statement(&mut self) -> Option<Stmt> {
+        let expr = self.expression()?;
+        self.consume(TokenType::SEMICOLON, "Expect ';' after expression.")?;
+        Some(Stmt::Expression(expr))
     }
 
     // expression → equality
