@@ -49,7 +49,7 @@ impl Scanner {
         // Continue scanning tokens until scan_token returns None
         while self.scan_token().is_some() {}
         info!("Reached end of file. Adding EOF token.");
-        self.tokens.push(Token::new(TokenType::EOF, String::new(), None));
+        self.tokens.push(Token::new(TokenType::EOF, String::new(), None, self.line));
     }
 
     /// Scans the next token, returning `Some(())` if a token was found, or `None` if end of file is reached.
@@ -151,7 +151,7 @@ impl Scanner {
     fn add_token(&mut self, token_type: TokenType) {
         let text = self.source[self.start..self.current].to_string();
         debug!("Adding token: {:?}, lexeme: {}", token_type, text);
-        self.tokens.push(Token::new(token_type, text, None));
+        self.tokens.push(Token::new(token_type, text, None, self.line));
     }
 
     fn is_at_end(&self) -> bool {
@@ -175,7 +175,7 @@ impl Scanner {
     fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<String>) {
         let text = self.source[self.start..self.current].to_string();
         debug!("Adding token with literal: {:?}, lexeme: {}, literal: {:?}", token_type, text, literal);
-        self.tokens.push(Token::new(token_type, text, literal));
+        self.tokens.push(Token::new(token_type, text, literal, self.line));
     }
 
     /// Scan an identifier or reserved word
@@ -274,7 +274,8 @@ impl Scanner {
                 self.tokens.push(Token::new(
                     TokenType::STRING,
                     value_with_quotes.clone(),    // Lexeme (string with quotes)
-                    Some(value_without_quotes),      // Literal value (the actual string content)
+                    Some(value_without_quotes),  // Literal value (the actual string content)
+                    self.line,     
                 ));
                 return;
             } else if c == '\n' {

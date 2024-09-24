@@ -2,6 +2,7 @@ mod scanner;
 mod token;
 mod parser;
 mod expr;
+mod interpreter;
 
 use std::env;
 use std::fs;
@@ -10,6 +11,7 @@ use std::process;
 use env_logger::Env;
 use scanner::Scanner;
 use parser::Parser;
+use interpreter::Interpreter;
 
 fn main() {
     let env = Env::default().filter_or("RUST_LOG", "debug");
@@ -27,6 +29,7 @@ fn main() {
     match command.as_str() {
         "tokenize" => tokenize_file(filename),
         "parse" => parse_file(filename),
+        "evaluate" => evaluate_file(filename), 
         _ => {
             writeln!(io::stderr(), "Unknown command: {}", command).unwrap();
         }
@@ -81,6 +84,41 @@ fn parse_file(filename: &str) {
         } else {
             eprintln!("Parse error");
             process::exit(65);
+        }
+    } else {
+        println!("EOF  null");
+    }
+}
+
+fn evaluate_file(filename: &str) {
+    let file_contents = fs::read_to_string(filename).unwrap_or_else(|_| {
+        writeln!(io::stderr(), "Failed to read file {}", filename).unwrap();
+        String::new()
+    });
+
+    if !file_contents.is_empty() {
+        let mut scanner = Scanner::new(file_contents);
+        let _tokens = scanner.scan_tokens();
+
+        if scanner.has_error() {
+            process::exit(65); // Exit with 65 for syntax errors
+        }
+
+        let mut parser = Parser::new(scanner.get_tokens().to_vec());
+        let expression = parser.parse();
+
+        if let Some(expr) = expression {
+            let interpreter = Interpreter::new();
+            match interpreter.evaluate(&expr) {
+                Ok(result) => println!("Evaluation result: {}", result),
+                Err(err) => {
+                    eprintln!("{}", err);  // Print runtime error
+                    process::exit(70);      // Exit with 70 for runtime errors
+                }
+            }
+        } else {
+            eprintln!("Parse error");
+            process::exit(65); // Exit with 65 for syntax errors
         }
     } else {
         println!("EOF  null");
