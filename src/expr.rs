@@ -1,6 +1,7 @@
 use crate::token::Token;
 use std::fmt;
 
+#[derive(Clone, PartialEq)]
 pub enum LiteralValue {
     StringLiteral(String),
     NumberLiteral(f64), // f64 can handle both integers and floats

@@ -110,10 +110,13 @@ fn evaluate_file(filename: &str) {
         if let Some(expr) = expression {
             let interpreter = Interpreter::new();
             match interpreter.evaluate(&expr) {
-                Ok(result) => println!("{}", result),
+                Ok(literal_value) => {
+                    // Convert LiteralValue to string for output
+                    println!("{}", interpreter.literal_to_string(literal_value));
+                }
                 Err(err) => {
-                    eprintln!("{}", err);  // Print runtime error
-                    process::exit(70);      // Exit with 70 for runtime errors
+                    eprintln!("{}", err);
+                    process::exit(70); // Exit with 70 for runtime errors
                 }
             }
         } else {
