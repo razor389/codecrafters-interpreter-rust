@@ -110,7 +110,7 @@ fn evaluate_file(filename: &str) {
         if let Some(expr) = expression {
             let interpreter = Interpreter::new();
             match interpreter.evaluate(&expr) {
-                Ok(result) => println!("Evaluation result: {}", result),
+                Ok(result) => println!("{}", result),
                 Err(err) => {
                     eprintln!("{}", err);  // Print runtime error
                     process::exit(70);      // Exit with 70 for runtime errors
