@@ -36,6 +36,7 @@ impl Environment {
     }
 
     pub fn get(&self, name: &str, line: usize) -> Result<LiteralValue, RuntimeError> {
+        log::debug!("getting var: {}", name);
         if let Some(value) = self.values.get(name) {
             Ok(value.clone())
         } else {
