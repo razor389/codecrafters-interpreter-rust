@@ -59,15 +59,10 @@ impl Interpreter {
     fn visit_unary(&self, operator: &Token, right: &Expr) -> Result<String, RuntimeError> {
         let right_value = self.evaluate(right)?;
         match operator.token_type {
-            // Handle negation for numeric values
             crate::token::TokenType::MINUS => {
-                let number = right_value.parse::<f64>().map_err(|_| RuntimeError {
-                    message: "Operand must be a number.".to_string(),
-                    line: operator.line,
-                })?;
+                let number = self.expect_number_literal(right, operator.line)?;
                 Ok((-number).to_string())
             }
-            // Handle logical NOT for booleans
             crate::token::TokenType::BANG => Ok((!self.is_truthy(&right_value)).to_string()),
             _ => Err(RuntimeError {
                 message: format!("Unknown unary operator: {}", operator.lexeme),
@@ -79,83 +74,114 @@ impl Interpreter {
     fn visit_binary(&self, left: &Expr, operator: &Token, right: &Expr) -> Result<String, RuntimeError> {
         let left_value = self.evaluate(left)?;
         let right_value = self.evaluate(right)?;
-
+    
         match operator.token_type {
             crate::token::TokenType::PLUS => {
-                let left_is_num = left_value.parse::<f64>().is_ok();
-                let right_is_num = right_value.parse::<f64>().is_ok();
-
-                if left_is_num && right_is_num {
-                    let left_num = left_value.parse::<f64>().unwrap();
-                    let right_num = right_value.parse::<f64>().unwrap();
-                    Ok((left_num + right_num).to_string())
-                } else if !left_is_num && !right_is_num {
-                    Ok(left_value + &right_value) // String concatenation
-                } else {
-                    Err(RuntimeError {
-                        message: "Operands must be two numbers or two strings.".to_string(),
+                // Handle string concatenation or numeric addition
+                if let (Ok(left_str), Ok(right_str)) = (self.try_as_string_literal(left), self.try_as_string_literal(right)) {
+                    return Ok(left_str + &right_str); // Concatenate strings
+                }
+    
+                if let (Ok(left_num), Ok(right_num)) = (self.try_as_number_literal(left), self.try_as_number_literal(right)) {
+                    return Ok((left_num + right_num).to_string()); // Add numbers
+                }
+    
+                Err(RuntimeError {
+                    message: "Operands must be two numbers or two strings.".to_string(),
+                    line: operator.line,
+                })
+            }
+            crate::token::TokenType::MINUS => {
+                let left_num = self.expect_number_literal(left, operator.line)?;
+                let right_num = self.expect_number_literal(right, operator.line)?;
+                Ok((left_num - right_num).to_string()) // Subtract numbers
+            }
+            crate::token::TokenType::STAR => {
+                let left_num = self.expect_number_literal(left, operator.line)?;
+                let right_num = self.expect_number_literal(right, operator.line)?;
+                Ok((left_num * right_num).to_string()) // Multiply numbers
+            }
+            crate::token::TokenType::SLASH => {
+                let left_num = self.expect_number_literal(left, operator.line)?;
+                let right_num = self.expect_number_literal(right, operator.line)?;
+                if right_num == 0.0 {
+                    return Err(RuntimeError {
+                        message: "Division by zero.".to_string(),
                         line: operator.line,
-                    })
+                    });
                 }
+                Ok((left_num / right_num).to_string()) // Divide numbers
             }
-            crate::token::TokenType::MINUS
-            | crate::token::TokenType::STAR
-            | crate::token::TokenType::SLASH => {
-                self.check_numeric_operands(&left_value, &right_value, operator.line)?;
-                let left_num = left_value.parse::<f64>().unwrap();
-                let right_num = right_value.parse::<f64>().unwrap();
-
-                match operator.token_type {
-                    crate::token::TokenType::MINUS => Ok((left_num - right_num).to_string()),
-                    crate::token::TokenType::STAR => Ok((left_num * right_num).to_string()),
-                    crate::token::TokenType::SLASH => {
-                        if right_num == 0.0 {
-                            return Err(RuntimeError {
-                                message: "Division by zero.".to_string(),
-                                line: operator.line,
-                            });
-                        }
-                        Ok((left_num / right_num).to_string())
-                    }
-                    _ => unreachable!(),
-                }
+            // Handle relational operators
+            crate::token::TokenType::GREATER => {
+                let left_num = self.expect_number_literal(left, operator.line)?;
+                let right_num = self.expect_number_literal(right, operator.line)?;
+                Ok((left_num > right_num).to_string()) // Greater than
             }
-            // Relational operators
-            crate::token::TokenType::GREATER
-            | crate::token::TokenType::GREATER_EQUAL
-            | crate::token::TokenType::LESS
-            | crate::token::TokenType::LESS_EQUAL => {
-                self.check_numeric_operands(&left_value, &right_value, operator.line)?;
-                let left_num = left_value.parse::<f64>().unwrap();
-                let right_num = right_value.parse::<f64>().unwrap();
-
-                match operator.token_type {
-                    crate::token::TokenType::GREATER => Ok((left_num > right_num).to_string()),
-                    crate::token::TokenType::GREATER_EQUAL => Ok((left_num >= right_num).to_string()),
-                    crate::token::TokenType::LESS => Ok((left_num < right_num).to_string()),
-                    crate::token::TokenType::LESS_EQUAL => Ok((left_num <= right_num).to_string()),
-                    _ => unreachable!(),
-                }
+            crate::token::TokenType::GREATER_EQUAL => {
+                let left_num = self.expect_number_literal(left, operator.line)?;
+                let right_num = self.expect_number_literal(right, operator.line)?;
+                Ok((left_num >= right_num).to_string()) // Greater than or equal to
             }
-            // Equality operators
-            crate::token::TokenType::EQUAL_EQUAL => Ok((left_value == right_value).to_string()),
-            crate::token::TokenType::BANG_EQUAL => Ok((left_value != right_value).to_string()),
+            crate::token::TokenType::LESS => {
+                let left_num = self.expect_number_literal(left, operator.line)?;
+                let right_num = self.expect_number_literal(right, operator.line)?;
+                Ok((left_num < right_num).to_string()) // Less than
+            }
+            crate::token::TokenType::LESS_EQUAL => {
+                let left_num = self.expect_number_literal(left, operator.line)?;
+                let right_num = self.expect_number_literal(right, operator.line)?;
+                Ok((left_num <= right_num).to_string()) // Less than or equal to
+            }
+            crate::token::TokenType::EQUAL_EQUAL => {
+                // Equality check: works for both strings and numbers
+                Ok((left_value == right_value).to_string())
+            }
+            crate::token::TokenType::BANG_EQUAL => {
+                // Inequality check: works for both strings and numbers
+                Ok((left_value != right_value).to_string())
+            }
             _ => Err(RuntimeError {
-                message: format!("Unknown binary operator: {}", operator.lexeme),
+                message: format!("Unknown operator: {}", operator.lexeme),
                 line: operator.line,
             }),
         }
     }
-
-    // Helper method to check if both operands are valid numbers for arithmetic operations
-    fn check_numeric_operands(&self, left: &str, right: &str, line: usize) -> Result<(), RuntimeError> {
-        if left.parse::<f64>().is_err() || right.parse::<f64>().is_err() {
-            return Err(RuntimeError {
-                message: "Operands must be numbers.".to_string(),
+    
+     // Helper function to extract number literals from expressions
+     fn expect_number_literal(&self, expr: &Expr, line: usize) -> Result<f64, RuntimeError> {
+        if let Expr::Literal(LiteralValue::NumberLiteral(n)) = expr {
+            Ok(*n)
+        } else {
+            Err(RuntimeError {
+                message: "Operand must be a number.".to_string(),
                 line,
-            });
+            })
         }
-        Ok(())
+    }
+
+    // Helper function to try and extract number literals
+    fn try_as_number_literal(&self, expr: &Expr) -> Result<f64, RuntimeError> {
+        if let Expr::Literal(LiteralValue::NumberLiteral(n)) = expr {
+            Ok(*n)
+        } else {
+            Err(RuntimeError {
+                message: "Expected a number.".to_string(),
+                line: 0,
+            })
+        }
+    }
+
+    // Helper function to try and extract string literals
+    fn try_as_string_literal(&self, expr: &Expr) -> Result<String, RuntimeError> {
+        if let Expr::Literal(LiteralValue::StringLiteral(s)) = expr {
+            Ok(s.clone())
+        } else {
+            Err(RuntimeError {
+                message: "Expected a string.".to_string(),
+                line: 0,
+            })
+        }
     }
 
     // Helper method to determine if a value is "truthy"
