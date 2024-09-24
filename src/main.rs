@@ -15,7 +15,7 @@ use parser::Parser;
 use interpreter::Interpreter;
 
 fn main() {
-    let env = Env::default().filter_or("RUST_LOG", "error");
+    let env = Env::default().filter_or("RUST_LOG", "debug");
     env_logger::init_from_env(env);
 
     let args: Vec<String> = env::args().collect();

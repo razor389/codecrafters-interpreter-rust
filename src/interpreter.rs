@@ -66,6 +66,7 @@ impl Environment {
             self.values.insert(name.to_string(), value);
             Ok(())
         } else if let Some(enclosing) = &mut self.enclosing {
+            log::debug!("var {} not declared in current scope, trying to assign in enclosing", name);
             // If not found in the current environment, try to assign in the enclosing one
             enclosing.assign(name, value, line)
         } else {
