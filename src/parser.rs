@@ -51,7 +51,7 @@ impl Parser {
         };
 
         self.consume(TokenType::SEMICOLON, "Expect ';' after variable declaration.")?;
-        log::debug!("var declaration: {}", name);
+        log::debug!("var declaration. name: {}, initializer: {:?}", name, initializer);
         Some(Stmt::Var { name, initializer })
     }
 

@@ -1,7 +1,7 @@
 use crate::token::Token;
 use std::fmt;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum LiteralValue {
     StringLiteral(String),
     NumberLiteral(f64), // f64 can handle both integers and floats
@@ -9,6 +9,7 @@ pub enum LiteralValue {
     Nil,
 }
 
+#[derive(Debug)]
 pub enum Expr {
     Binary {
         left: Box<Expr>,
