@@ -1,4 +1,4 @@
-use crate::expr::Expr;
+use crate::expr::{Expr, LiteralValue};
 use crate::token::Token;
 use std::fmt;
 use std::error::Error;
@@ -35,24 +35,20 @@ impl Interpreter {
         }
     }
 
-    fn visit_literal(&self, value: &Option<String>) -> Result<String, RuntimeError> {
+    fn visit_literal(&self, value: &LiteralValue) -> Result<String, RuntimeError> {
         match value {
-            Some(v) => {
-                // Try to parse the value as a float or integer and format accordingly
-                if let Ok(num) = v.parse::<f64>() {
-                    if num.fract() == 0.0 {
-                        // It's an integer, format without a decimal point
-                        Ok(format!("{}", num as i64))
-                    } else {
-                        // It's a float, format it normally
-                        Ok(format!("{}", num))
-                    }
+            LiteralValue::StringLiteral(s) => Ok(s.clone()), // Return string as is
+            LiteralValue::NumberLiteral(n) => {
+                if n.fract() == 0.0 {
+                    // It's an integer, format without a decimal point
+                    Ok(format!("{}", *n as i64))
                 } else {
-                    // It's a string, return it directly
-                    Ok(v.clone())
+                    // It's a float, format it normally
+                    Ok(format!("{}", n))
                 }
             }
-            None => Ok("nil".to_string()),
+            LiteralValue::BooleanLiteral(b) => Ok(b.to_string()), // Return "true" or "false"
+            LiteralValue::Nil => Ok("nil".to_string()), // Return "nil"
         }
     }
 
