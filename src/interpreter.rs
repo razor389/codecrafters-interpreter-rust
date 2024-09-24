@@ -82,6 +82,7 @@ impl Interpreter {
             crate::token::TokenType::PLUS => {
                 // Handle string concatenation or numeric addition
                 if let (Ok(left_str), Ok(right_str)) = (self.try_as_string_literal(left), self.try_as_string_literal(right)) {
+                    debug!("concatenating strings {} and {}", left_str, right_str);
                     return Ok(left_str + &right_str); // Concatenate strings
                 }
     
