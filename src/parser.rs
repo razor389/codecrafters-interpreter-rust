@@ -207,6 +207,12 @@ impl Parser {
             return Some(Expr::Literal(LiteralValue::Nil));
         }
 
+        if self.match_token(&[TokenType::IDENTIFIER]) {
+            // If we see an identifier, return it as an Expr::Variable
+            let name = self.previous().clone();
+            return Some(Expr::Variable(name));
+        }
+
         if self.match_token(&[TokenType::LEFT_PAREN]) {
             let expr = self.expression();
             self.consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.")?;
