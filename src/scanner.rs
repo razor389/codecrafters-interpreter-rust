@@ -141,11 +141,12 @@ impl Scanner {
 
     /// Advances and returns the next character, or `None` if at the end.
     fn advance(&mut self) -> Option<char> {
-        let next_char = self.source.chars().nth(self.current);
-        if next_char.is_some() {
-            self.current += 1; // Move to the next character
+        let mut chars = self.source[self.current..].chars();
+        let next_char = chars.next();
+        if let Some(c) = next_char {
+            self.current += c.len_utf8(); // Correctly advance by character's byte length
         }
-        next_char // Return the character or None if at the end
+        next_char
     }
 
     fn add_token(&mut self, token_type: TokenType) {
@@ -163,14 +164,16 @@ impl Scanner {
             return false;
         }
 
-        if let Some(next_char) = self.source.chars().nth(self.current) {
+        let mut chars = self.source[self.current..].chars();
+        if let Some(next_char) = chars.next() {
             if next_char == expected {
-                self.current += 1; // Consume the next character
+                self.current += next_char.len_utf8(); // Correctly advance by the character's byte length
                 return true;
             }
         }
         false
     }
+
 
     fn add_token_with_literal(&mut self, token_type: TokenType, literal: Option<String>) {
         let text = self.source[self.start..self.current].to_string();
@@ -256,14 +259,16 @@ impl Scanner {
     
     /// Peek at the current character without advancing
     fn peek(&self) -> Option<char> {
-        self.source.chars().nth(self.current)
+        self.source[self.current..].chars().next()
     }
 
     /// Peek at the next character (after the current one) without advancing
     fn peek_next(&self) -> Option<char> {
-        self.source.chars().nth(self.current + 1)
+        let mut chars = self.source[self.current..].chars();
+        chars.next()?;
+        chars.next()
     }
-
+    
     /// Scan string literals and handle unterminated strings
     fn scan_string(&mut self) {
         while let Some(c) = self.advance() {

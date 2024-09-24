@@ -35,6 +35,7 @@ impl Environment {
         self.values.insert(name, value);
     }
 
+    #[allow(dead_code)]
     pub fn get(&self, name: &str) -> Result<&LiteralValue, RuntimeError> {
         self.values.get(name).ok_or_else(|| RuntimeError {
             message: format!("Undefined variable '{}'.", name),
