@@ -41,6 +41,7 @@ impl Parser {
 
     // Variable declaration (e.g., `var a = 5;`)
     fn var_declaration(&mut self) -> Option<Stmt> {
+        log::debug!("var declaration");
         let name = self.consume(TokenType::IDENTIFIER, "Expect variable name.")?.clone();
 
         let initializer = if self.match_token(&[TokenType::EQUAL]) {
