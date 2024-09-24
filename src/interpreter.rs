@@ -86,6 +86,7 @@ impl Interpreter {
                     LiteralValue::Nil
                 };
                 self.environment.define(name.lexeme.clone(), value);
+                log::debug!("defined variable {}", name.lexeme.clone());
                 Ok(())
             }
         }
