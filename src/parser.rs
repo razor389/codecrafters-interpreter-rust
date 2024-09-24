@@ -90,11 +90,28 @@ impl Parser {
         Some(Stmt::Expression(expr))
     }
 
-    // expression → equality
+    // expression → assignment
     fn expression(&mut self) -> Option<Expr> {
-        self.equality()
+        self.assignment()
     }
 
+    fn assignment(&mut self) -> Option<Expr> {
+        let expr = self.equality();
+    
+        if self.match_token(&[TokenType::EQUAL]) {
+            let _equals = self.previous().clone();
+            let value = self.assignment(); // Recursively call assignment to parse the right-hand side
+    
+            if let Some(Expr::Variable(name)) = expr {
+                return Some(Expr::Assign { name, value: Box::new(value?) });
+            }
+    
+            self.error("Invalid assignment target.");
+        }
+    
+        expr
+    }
+    
     // equality → comparison ( ( "!=" | "==" ) comparison )*
     fn equality(&mut self) -> Option<Expr> {
         let mut expr = self.comparison();

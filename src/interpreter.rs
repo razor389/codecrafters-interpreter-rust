@@ -46,6 +46,18 @@ impl Environment {
             })
         }
     }
+
+    pub fn assign(&mut self, name: &str, value: LiteralValue, line: usize) -> Result<(), RuntimeError> {
+        if self.values.contains_key(name) {
+            self.values.insert(name.to_string(), value);
+            Ok(())
+        } else {
+            Err(RuntimeError {
+                message: format!("Undefined variable '{}'.", name),
+                line,
+            })
+        }
+    }
 }
 
 // Interpreter struct to evaluate expressions and statements
@@ -108,9 +120,14 @@ impl Interpreter {
     }
 
     // Evaluate the given expression and return a result as a String or error
-    pub fn evaluate(&self, expr: &Expr) -> Result<LiteralValue, RuntimeError> {
+    pub fn evaluate(&mut self, expr: &Expr) -> Result<LiteralValue, RuntimeError> {
         match expr {
             Expr::Literal(value) => self.visit_literal(value),
+            Expr::Assign { name, value } => {
+                let new_value = self.evaluate(value)?;
+                self.environment.assign(&name.lexeme, new_value.clone(), name.line)?;
+                Ok(new_value)
+            },
             Expr::Variable(name) => self.environment.get(&name.lexeme, name.line),
             Expr::Unary { operator, right } => self.visit_unary(operator, right),
             Expr::Binary { left, operator, right } => self.visit_binary(left, operator, right),
@@ -123,12 +140,12 @@ impl Interpreter {
         Ok(value.clone()) // Return the literal value as-is
     }
 
-    fn visit_grouping(&self, expr: &Expr) -> Result<LiteralValue, RuntimeError> {
+    fn visit_grouping(&mut self, expr: &Expr) -> Result<LiteralValue, RuntimeError> {
         self.evaluate(expr)
     }
     
 
-    fn visit_unary(&self, operator: &Token, right: &Expr) -> Result<LiteralValue, RuntimeError> {
+    fn visit_unary(&mut self, operator: &Token, right: &Expr) -> Result<LiteralValue, RuntimeError> {
         let right_value = self.evaluate(right)?;
         match operator.token_type {
             crate::token::TokenType::MINUS => {
@@ -153,7 +170,7 @@ impl Interpreter {
     }
     
 
-    fn visit_binary(&self, left: &Expr, operator: &Token, right: &Expr) -> Result<LiteralValue, RuntimeError> {
+    fn visit_binary(&mut self, left: &Expr, operator: &Token, right: &Expr) -> Result<LiteralValue, RuntimeError> {
         let left_value = self.evaluate(left)?;
         let right_value = self.evaluate(right)?;
     

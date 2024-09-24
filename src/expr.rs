@@ -11,6 +11,10 @@ pub enum LiteralValue {
 
 #[derive(Debug)]
 pub enum Expr {
+    Assign {
+        name: Token,
+        value: Box<Expr>,
+    },
     Binary {
         left: Box<Expr>,
         operator: Token,
@@ -55,6 +59,10 @@ impl fmt::Display for Expr {
             // Handle variable expressions like `print baz;`
             Expr::Variable(token) => {
                 write!(f, "{}", token.lexeme)
+            }
+            // Handle assignment expressions
+            Expr::Assign { name, value } => {
+                write!(f, "(assign {} = {})", name.lexeme, value)
             }
         }
     }

@@ -110,7 +110,7 @@ fn evaluate_file(filename: &str) {
         let expression = parser.parse_expression();
 
         if let Some(expr) = expression {
-            let interpreter = Interpreter::new();
+            let mut interpreter = Interpreter::new();
             match interpreter.evaluate(&expr) {
                 Ok(literal_value) => {
                     // Convert LiteralValue to string for output
