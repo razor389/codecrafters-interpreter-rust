@@ -1,3 +1,5 @@
+use std::process;
+
 use crate::token::{Token, TokenType};
 use crate::expr::{Expr, LiteralValue};
 use crate::stmt::Stmt;
@@ -62,9 +64,20 @@ impl Parser {
 
     // Print statement (e.g., `print 5;`)
     fn print_statement(&mut self) -> Option<Stmt> {
-        let expr = self.expression()?;
-        self.consume(TokenType::SEMICOLON, "Expect ';' after value.")?;
-        Some(Stmt::Print(expr))
+        // Attempt to parse the expression following the 'print' keyword
+        if let Some(expr) = self.expression() {
+            self.consume(TokenType::SEMICOLON, "Expect ';' after value.")?;
+            Some(Stmt::Print(expr))
+        } else {
+            // Handle missing expression (like 'print;' without an expression)
+            self.error("Expected expression after 'print'");
+            None
+        }
+    }
+
+    fn error(&self, message: &str) {
+        eprintln!("[line {}] Error: {}", self.peek().line, message);
+        process::exit(65);
     }
 
     // Expression statement (e.g., `5 + 3;`)
