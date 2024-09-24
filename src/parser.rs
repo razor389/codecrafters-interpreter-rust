@@ -64,6 +64,7 @@ impl Parser {
 
     // Print statement (e.g., `print 5;`)
     fn print_statement(&mut self) -> Option<Stmt> {
+        log::debug!("print statement");
         // Attempt to parse the expression following the 'print' keyword
         if let Some(expr) = self.expression() {
             self.consume(TokenType::SEMICOLON, "Expect ';' after value.")?;
