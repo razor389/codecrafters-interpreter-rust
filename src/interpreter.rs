@@ -49,7 +49,7 @@ impl Environment {
     pub fn get(&self, name: &str, line: usize) -> Result<LiteralValue, RuntimeError> {
         log::debug!("getting var: {}", name);
         if let Some(value) = self.values.get(name) {
-            log::debug!("got {}", value.clone());
+            log::debug!("got {:?}", value.clone());
             Ok(value.clone())
         } else if let Some(enclosing) = &self.enclosing {
             // If not found in the current environment, check the enclosing one
