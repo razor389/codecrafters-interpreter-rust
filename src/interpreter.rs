@@ -101,33 +101,31 @@ impl Interpreter {
     }
 
      // Execute a block of statements in a new environment
-    fn execute_block(&mut self, statements: &[Stmt], environment: Environment) -> Result<(), RuntimeError> {
+     fn execute_block(&mut self, statements: &[Stmt], environment: Environment) -> Result<(), RuntimeError> {
         log::debug!("--- ENTERING BLOCK ---");
         log::debug!("Environment before block: {:?}", self.environment.values);
 
-        // Push a new environment for the block scope, while keeping the current environment accessible.
-        let new_environment = Environment::from_enclosing(self.environment.clone());
-        let mut previous = std::mem::replace(&mut self.environment, new_environment);
+        // Replace the current environment with the new one (for the block's scope)
+        let previous = std::mem::replace(&mut self.environment, environment);
 
+        // Print environment at block entry
         log::debug!("New environment inside block: {:?}", self.environment.values);
 
         // Execute the block
         let result = self.interpret(statements.to_vec());
 
-        // Instead of fully restoring the previous environment, merge changes back to the enclosing scope
-        for (key, value) in self.environment.values.iter() {
-            log::debug!("Merging variable {} with value {:?}", key, value);
-            previous.define(key.clone(), value.clone());
-        }
+        // Print environment before exiting block
+        log::debug!("Environment before exiting block: {:?}", self.environment.values);
+        log::debug!("Enclosing environment before exiting block: {:?}", self.environment.enclosing.clone().unwrap().values);
 
-        // Restore the environment (but merged changes persist)
+        // After the block is executed, restore the previous environment (exit the block scope)
         self.environment = previous;
 
         log::debug!("Restored environment after block: {:?}", self.environment.values);
         log::debug!("--- EXITING BLOCK ---");
         result
     }
-    
+
     // Execute statements
     fn execute(&mut self, stmt: &Stmt) -> Result<(), RuntimeError> {
         match stmt {
