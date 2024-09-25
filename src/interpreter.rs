@@ -53,6 +53,7 @@ impl Environment {
             Ok(value.clone())
         } else if let Some(enclosing) = &self.enclosing {
             // If not found in the current environment, check the enclosing one
+            log::debug!("not found in current, checking enclosing");
             enclosing.get(name, line)
         } else {
             Err(RuntimeError {
