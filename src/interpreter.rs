@@ -100,13 +100,28 @@ impl Interpreter {
         Ok(())
     }
 
-    // Execute a block of statements in a new environment
-    fn execute_block(&mut self, statements: &[Stmt], environment: Environment) -> Result<(), RuntimeError> {
-        log::debug!("executing block");
-        let previous = std::mem::replace(&mut self.environment, environment); // Enter a new scope
-        let result = self.interpret(statements.to_vec()); // Execute the block
-        self.environment = previous; // Exit the scope by restoring the old environment
-        log::debug!("exiting block");
+     // Execute a block of statements in a new environment
+     fn execute_block(&mut self, statements: &[Stmt], environment: Environment) -> Result<(), RuntimeError> {
+        log::debug!("--- ENTERING BLOCK ---");
+        log::debug!("Environment before block: {:?}", self.environment.values);
+
+        // Replace the current environment with the new one (for the block's scope)
+        let previous = std::mem::replace(&mut self.environment, environment);
+
+        // Print environment at block entry
+        log::debug!("New environment inside block: {:?}", self.environment.values);
+
+        // Execute the block
+        let result = self.interpret(statements.to_vec());
+
+        // Print environment before exiting block
+        log::debug!("Environment before exiting block: {:?}", self.environment.values);
+
+        // After the block is executed, restore the previous environment (exit the block scope)
+        self.environment = previous;
+
+        log::debug!("Restored environment after block: {:?}", self.environment.values);
+        log::debug!("--- EXITING BLOCK ---");
         result
     }
 
