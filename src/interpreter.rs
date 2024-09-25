@@ -127,8 +127,8 @@ impl Interpreter {
                 } else {
                     LiteralValue::Nil
                 };
-                self.environment.define(name.lexeme.clone(), value);
-                log::debug!("defined variable {}", name.lexeme.clone());
+                self.environment.define(name.lexeme.clone(), value.clone());
+                log::debug!("defined variable {} with value: {:?}", name.lexeme.clone(), value);
                 Ok(())
             }
             Stmt::Block(statements) => {
