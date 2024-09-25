@@ -105,7 +105,7 @@ impl Interpreter {
         let previous = std::mem::replace(&mut self.environment, environment); // Enter a new scope
         let result = self.interpret(statements.to_vec()); // Execute the block
         self.environment = previous; // Exit the scope by restoring the old environment
-        log::debug!("exiting scope");
+        log::debug!("exiting block");
         result
     }
 
