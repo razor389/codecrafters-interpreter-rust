@@ -118,8 +118,8 @@ impl Interpreter {
         log::debug!("Environment before exiting block: {:?}", self.environment.values);
         log::debug!("Enclosing environment before exiting block: {:?}", self.environment.enclosing.clone().unwrap().values);
 
-        // After the block is executed, restore the previous environment (exit the block scope)
-        self.environment = previous;
+        // Revert back to the outer environment (the one before the block)
+        self.environment = *self.environment.enclosing.clone().unwrap();
 
         log::debug!("Restored environment after block: {:?}", self.environment.values);
         log::debug!("--- EXITING BLOCK ---");
