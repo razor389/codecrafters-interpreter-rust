@@ -101,9 +101,11 @@ impl Interpreter {
 
     // Execute a block of statements in a new environment
     fn execute_block(&mut self, statements: &[Stmt], environment: Environment) -> Result<(), RuntimeError> {
+        log::debug!("executing block");
         let previous = std::mem::replace(&mut self.environment, environment); // Enter a new scope
         let result = self.interpret(statements.to_vec()); // Execute the block
         self.environment = previous; // Exit the scope by restoring the old environment
+        log::debug!("exiting scope");
         result
     }
 
